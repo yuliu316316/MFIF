@@ -26,12 +26,19 @@ fim=double(fim);
 [mssim3, ssim_map3, sigma1_sq3,sigma2_sq3] = ssim_yang(im2, fim);
 
 bin_map=ssim_map1>=0.75;
-ramda=sigma1_sq1./(sigma1_sq1+sigma2_sq1);
+%ramda=sigma1_sq1./(sigma1_sq1+sigma2_sq1);
+
+%add to avoid NAN (by Yu Liu)
+buffer=sigma1_sq1+sigma2_sq1;
+test=(buffer==0); test=test*0.5;
+sigma1_sq1=sigma1_sq1+test; sigma2_sq1=sigma2_sq1+test;
+buffer=sigma1_sq1+sigma2_sq1;                         
+ramda=sigma1_sq1./buffer;
 
 Q1=(ramda.*ssim_map2+(1-ramda).*ssim_map3).*bin_map;
 
-idx_nan=find(isnan(ramda)==1);  %add to avoid NAN (by Yu Liu)
-Q1(idx_nan)=0.5.*ssim_map2(idx_nan)+0.5.*ssim_map3(idx_nan); 
+%idx_nan=find(isnan(ramda)==1);  %add to avoid NAN (by Yu Liu)
+%Q1(idx_nan)=0.5.*ssim_map2(idx_nan)+0.5.*ssim_map3(idx_nan); 
 
 Q2=(max(ssim_map2,ssim_map3)).*(~bin_map);
 
